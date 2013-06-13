@@ -1,0 +1,22 @@
+{
+  "version": "0.1",
+  "name": "Geo tracker",
+  "description": "Simple geo position recorder app",
+  "launch_path": "/index.html",
+  "icons": {
+    "16": "/img/icons/geotracker-16.png",
+    "48": "/img/icons/geotracker-48.png",
+    "128": "/img/icons/geotracker-128.png"
+  },
+  "developer": {
+    "name": "Benjamin Becquet",
+    "url": "https://github.com/bbecquet"
+  },
+  "installs_allowed_from": ["*"],
+  "default_locale": "en",
+  "permissions":{
+    "geolocation": {
+      "description": "Needed for the app to find position."
+    }
+  }
+}

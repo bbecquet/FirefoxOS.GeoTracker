@@ -1,0 +1,179 @@
+
+/* Tip: Use "@import" to add styles instead of adding <link>'s in your
+   HTML, and volo will inline it when building for production */
+
+@import "install-button.css";
+@import "../js/lib/layouts/css/layouts.css";
+
+@import "fonts.css";
+
+/* Your styles here */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'MozTTLight', Verdana, sans-serif;
+}
+
+header h1 {
+    padding: 0 0.5em;
+    font: 2.2rem/4rem "Open Sans", Sans-serif;
+    color: white;
+}
+
+header {
+    background: black;
+    height: 4em;
+}
+
+section {
+    height: 100%;
+    display: none;
+    overflow: auto;
+}
+
+section .contents {
+    padding: 1em;
+}
+
+
+#mapView .contents {
+    /* Fill all the space but the header */
+    position: absolute;
+    top: 4em;
+    bottom: 0;
+    padding: 0;
+    width: 100%;
+}
+
+h1 {
+
+}
+
+#v_trackList {
+    display: block;
+}
+
+#trackList li:before {
+    content: ' ';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background: url(../img/glyphicons-halflings.png) no-repeat -337px -144px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+ul li {
+}
+
+#mapView .contents {
+    padding: 0;
+}
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+#trackList li {
+    list-style: none;
+    padding:5px 0;
+}
+#trackList .t_title {
+    font-weight: bold;
+}
+#trackList .t_date {
+    display: block;
+    color: gray;
+}
+
+.error {
+    color: red;
+}
+
+
+#t_headingWrapper {
+    display:inline-block;
+    border: 1px solid gray;
+    border-radius: 50%;
+    width: 1.5em;
+    height: 1.5em;
+}
+
+#t_heading {
+    transition: all 0.5s;
+    transform-origin: center center;
+    display: inline-block;
+    font-size: 1.5em;
+}
+
+.buttons {
+    margin-top: 1em;
+    padding: 1em 0;
+    text-align: right;
+    border-top: 1px solid silver;
+}
+
+#showOnMapDynamic, #showOnMapStatic {
+    float: right;
+}
+
+.backButton {
+    height: 100%;
+    min-width: 2em;
+    background: transparent;
+    color: white;
+    border: none;
+    border-right: 1px solid silver;
+    font: 2.2rem/4rem "Open Sans", Sans-serif;
+    float: left;
+    margin-right: 0.5em;
+    min-width: 1em;
+    padding: 0;
+}
+
+.icon-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 2px 2px 3px #222;
+}
+
+.icon-marker-biz {
+    background-color: red;
+}
+
+
+.icon-marker-misc {
+    background-color: blue;
+}
+
+
+.icon-marker-attr {
+    background-color: green;
+}
+
+
+.icon-marker-resto {
+    background-color: orange;
+}
+
+#t_profileChart {
+    height:125px;
+    width: 100%;
+    background-color: #eee;
+}
+
+button {
+    border: none;
+    padding: 0.5em;
+    border-radius: 0;
+}
