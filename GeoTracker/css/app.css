@@ -1,13 +1,6 @@
 
-/* Tip: Use "@import" to add styles instead of adding <link>'s in your
-   HTML, and volo will inline it when building for production */
-
 @import "install-button.css";
-@import "../js/lib/layouts/css/layouts.css";
-
 @import "fonts.css";
-
-/* Your styles here */
 
 * {
     margin: 0;
@@ -72,6 +65,7 @@ h1 {
 }
 
 ul li {
+    list-style: none;
 }
 
 #mapView .contents {
