@@ -17,17 +17,33 @@ define(function(require) {
   var tracking = false;
   var fakeMode = false; // set to true to simulate a GPS sending regular positions
 
+  var $trackList = $('#trackList');
+  $trackList.on('click', '.btn_deleteTrack', function(e){
+    if(confirm('Are you sure you want to delete this track?')) {
+      console.log('Delete '+this.parentNode.dataset.trackid);
+      trackStore.deleteTrack(this.parentNode.dataset.trackid, function() {
+        loadTrackList();
+      });
+    }
+  })
   function loadTrackList() {
     trackStore.getTrackList(function(tracks){
-    	$('#trackList').html('');
-    	for(var i=0;i<tracks.length;i++) {
-      	$('#trackList').append(createTrackItem(tracks[i]));
-    	}
+    	$trackList.html('');
+      $('#noTrackMsg').hide();
+      if(tracks.length == 0) {
+        $('#noTrackMsg').show();
+      } else {
+      	for(var i=0;i<tracks.length;i++) {
+        	$trackList.append(createTrackItem(tracks[i]));
+      	}
+      }
     });
   };
   function createTrackItem(track) {
-    return '<li data-track-id="'+track.id+'"><span class="t_title">' + track.title + '</span>' +
-      '<span class="t_date">' + formatDate(track.date) + '</span></li>';
+    return '<li data-trackid="' + track.id + '">' +
+      '<span class="t_title">' + track.title + '</span>' +
+      '<span class="t_date">' + formatDate(track.date) + '</span>' +
+      '<button class="btn_deleteTrack">Delete</button></li>';
   }
   loadTrackList();
 
