@@ -8,6 +8,5 @@ Creating a general purpose GPS track recording/exporting app, similar to My Trac
 
 ## TODO:
 
-1. Working IndexedDB-based persistent storage
-2. GPX export to SD card (requires privileged app level)
-3. All the rest...
+1. GPX export to SD card (requires privileged app level)
+2. All the rest!

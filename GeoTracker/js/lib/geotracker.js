@@ -63,9 +63,8 @@ geoTracker.tracker = function(fake) {
       } else {
         trackingHandler = navigator.geolocation.getCurrentPosition(
           onUpdate,
-          function(err) {
-            onError(err);
-          }, {
+          onError,
+          {
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 3000
@@ -98,94 +97,155 @@ var position = {
 }
 */
 
+/**
+Implements an indexedDB-based repository for persistent storage
+of tracks accross sessions.
+Provides methods to list/add/delete tracks and positions.
+*/
 geoTracker.trackStore = function() {
-  // Track DB management
   var db = null;
-
-  function openDB(callback) {
-    if(db == null) {
-      var request = window.indexedDB.open('geotracks', 3);
-      request.onupgradeneeded = function(evt) {
-        console.log('creating object store');
-      var store = evt.currentTarget.result.createObjectStore(
-            'tracks', { keyPath: 'id', autoIncrement: true });
-      };
-      request.onerror = function(event) {
-          alert("Why didn't you allow my web app to use IndexedDB?!");
-      };
-      request.onsuccess = function(event) {
-          db = request.result;
-          callback();
-      };
-    } else {
-      callback();
+  function openDB(success) {
+    if(db != null) {
+      success();
+      return;
     }
+    var request = window.indexedDB.open('geotracker', 1);
+    request.onupgradeneeded = function(evt) {
+      console.log('Creating track store...');
+      var trackStore = evt.currentTarget.result.createObjectStore(
+        'tracks', { keyPath: 'id', autoIncrement: true }
+      );
+      console.log('Creating position store...');
+      var positionStore = evt.currentTarget.result.createObjectStore(
+        'positions', { keyPath: 'id' }
+      );
+      console.log('Creating position index...');
+      var positionIdx = positionStore.createIndex(
+        'positionIdx', 'trackId', { unique: false }
+      );
+    };
+    request.onerror = function(event) {
+        alert('Error opening DB: '+request.errorCode);
+    };
+    request.onsuccess = function(event) {
+        db = request.result;
+        db.onerror = function(event) {
+          // Generic error handler for the whole DB
+          console.error("DB error: " + event.target.errorCode);
+        };
+        success();
+    };
   };
 
-  var tracks = [
-    {
-      id: 1,
-      title: 'Hiking in Scotland',
-      date: new Date(2012, 7, 5),
-      positions: [],
-      markers: []
-    }
-  ]
-
   var public = {
-    addTrack: function(track, callback, errorCallback) {
-      track.id = tracks.length + 1;
-      tracks.push(track);
-      callback(track);
-      // var transaction = db.transaction(["tracks"], "readwrite");
-      // // Do something when all the data is added to the database.
-      // transaction.oncomplete = function(event) {
-      //   console.log('Transaction complete');
-      //   callback();
-      // };
+    addTrack: function(track, success, error) {
+      openDB(function() {
+        var trackId;
+        var transaction = db.transaction(['tracks'], 'readwrite');
+        transaction.oncomplete = function(event) {
+          console.log('Transaction complete, new track Id='+trackId);
+          success(trackId);
+        };
 
-      // transaction.onerror = function(event) {
-      //   console.log('Shit!');
-      //   errorCallback(event);
-      // };
-
-      // var objectStore = transaction.objectStore("tracks");
-      // var request = objectStore.add(track);
-      // request.onsuccess = function(event) {
-      //   // event.target.result == customerData[i].ssn
-      //   console.log('It works!');
-      // };
+        var trackStore = transaction.objectStore('tracks');
+        var request = trackStore.add(track);
+        request.onsuccess = function(event) {
+          trackId = event.target.result;
+        };
+      });
     },
 
-    addPosition: function(trackId, position, callback, errorCallback) {
+    addPosition: function(trackId, position, success, error) {
+      openDB(function() {
+        var transaction = db.transaction(['positions'], 'readwrite');
+        transaction.oncomplete = function(event) {
+          success();
+        };
 
+        var trackStore = transaction.objectStore('positions');
+        position.trackId = trackId;
+        // generate a numerical Id based on timestamp and trackId for range selection
+        position.id = Number(trackId) * (1e16) + position.timestamp;
+        var request = trackStore.add(position);
+        request.onsuccess = function(event) {
+          console.log('Position inserted works! Id = ' + event.target.result);
+        };
+      });
     },
 
-    addMarker: function(trackId, marker, callback, errorCallback) {
+    deleteTrack: function(trackId, success, error) {
+      openDB(function() {
+        var transaction = db.transaction(['tracks', 'positions'], 'readwrite');
+        // first delete positions, then track if succesful
+        var request = transaction
+          .objectStore('positions')
+          .delete(IDBKeyRange.bound(Number(trackId) * (1e16), (Number(trackId)+1) * (1e16), false, true))
+          .onsuccess = function(event) {
+            transaction
+              .objectStore('tracks')
+              .delete(Number(trackId))
+          }
 
+        transaction.oncomplete = function(event) {
+          success();
+        };
+      });
     },
 
-    deleteTrack: function(trackId) {
-
+    getTrackList: function(success, error) {
+      openDB(function() {
+        var objectStore = db.transaction(['tracks'], 'readonly').objectStore('tracks');
+        var request = objectStore.openCursor();
+        var recordedTracks = [];
+        request.onsuccess = function(event) {
+          var cursor = event.target.result;
+          // Too bad getAll() isn't standard...
+          if (cursor) {
+            recordedTracks.push(cursor.value);
+            cursor.continue();
+          } else {
+            success(recordedTracks);
+          }
+        };
+      });
     },
 
-    getTrackList: function(callback, errorCallback) {
-      callback(tracks);
-
-      /*var objectStore = db.transaction("tracks").objectStore("tracks");
-
-      objectStore.openCursor().onsuccess = function(event) {
-        var cursor = event.target.result;
-        if (cursor) {
-          console.log("Id: " + cursor.value.id + " is " + cursor.value.title);
-          cursor.continue();
+    getTrackPositions: function(trackId, success, error) {
+      openDB(function() {
+        var positions = [];
+        var positionStore = db.transaction(['positions'], 'readonly').objectStore('positions');
+        var positionIdx = positionStore.index('positionIdx');
+        var request = positionIdx.openCursor(IDBKeyRange.only(Number(trackId)));
+        request.onsuccess = function(event) {
+          var cursor = event.target.result;
+          if (cursor) {
+            positions.push(cursor.value);
+            cursor.continue();
+          } else {
+            // sort by time stamp (useless?)
+            positions.sort(function(a, b) { return a.timestamp < b.timestamp; });
+            success(positions);
+          }
+        };
+        request.onerror = function() {
+          console.error(request.errorCode);
         }
-      };
-      */
+      });
     },
 
-    getTrackDetails: function(trackId, callback, errorCallback) {
+    addMarker: function(trackId, marker, success, error) {
 
+    },
+
+    updateTrackDetails: function(trackId, success, error) {
+      // TODO: 
+    },
+
+    close: function() {
+      if(db != null) {
+        db.close();
+        db = null;
+      }
     }
   };
 
