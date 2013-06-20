@@ -97,19 +97,31 @@ var position = {
 }
 */
 
+/**
+Implements an indexedDB-based repository for persistent storage
+of tracks accross sessions.
+Provides methods to list/add/delete tracks and positions.
+*/
 geoTracker.trackStore = function() {
-  // Track DB management
   var db = null;
   function openDB(success) {
     if(db != null) {
       success();
       return;
     }
-    var request = window.indexedDB.open('geotracks', 1);
+    var request = window.indexedDB.open('geotracker', 1);
     request.onupgradeneeded = function(evt) {
-      console.log('creating object store');
-      var store = evt.currentTarget.result.createObjectStore(
+      console.log('Creating track store...');
+      var trackStore = evt.currentTarget.result.createObjectStore(
         'tracks', { keyPath: 'id', autoIncrement: true }
+      );
+      console.log('Creating position store...');
+      var positionStore = evt.currentTarget.result.createObjectStore(
+        'positions', { keyPath: 'id' }
+      );
+      console.log('Creating position index...');
+      var positionIdx = positionStore.createIndex(
+        'positionIdx', 'trackId', { unique: false }
       );
     };
     request.onerror = function(event) {
@@ -125,40 +137,55 @@ geoTracker.trackStore = function() {
     };
   };
 
-  // TODO: positions
-  // TODO: index for positions
   var public = {
     addTrack: function(track, success, error) {
       openDB(function() {
+        var trackId;
         var transaction = db.transaction(['tracks'], 'readwrite');
         transaction.oncomplete = function(event) {
-          console.log('Transaction complete');
-          success();
+          console.log('Transaction complete, new track Id='+trackId);
+          success(trackId);
         };
 
         var trackStore = transaction.objectStore('tracks');
         var request = trackStore.add(track);
         request.onsuccess = function(event) {
-          console.log('It works! Id = ' + event.target.result);
+          trackId = event.target.result;
         };
       });
     },
 
     addPosition: function(trackId, position, success, error) {
+      openDB(function() {
+        var transaction = db.transaction(['positions'], 'readwrite');
+        transaction.oncomplete = function(event) {
+          success();
+        };
 
-    },
-
-    addMarker: function(trackId, marker, success, error) {
-
+        var trackStore = transaction.objectStore('positions');
+        position.trackId = trackId;
+        // generate a numerical Id based on timestamp and trackId for range selection
+        position.id = Number(trackId) * (1e16) + position.timestamp;
+        var request = trackStore.add(position);
+        request.onsuccess = function(event) {
+          console.log('Position inserted works! Id = ' + event.target.result);
+        };
+      });
     },
 
     deleteTrack: function(trackId, success, error) {
       openDB(function() {
-        var transaction = db.transaction(['tracks'], 'readwrite');
+        var transaction = db.transaction(['tracks', 'positions'], 'readwrite');
+        // first delete positions, then track if succesful
         var request = transaction
-          .objectStore('tracks')
-          .delete(Number(trackId));
-        // TODO: delete positions
+          .objectStore('positions')
+          .delete(IDBKeyRange.bound(Number(trackId) * (1e16), (Number(trackId)+1) * (1e16), false, true))
+          .onsuccess = function(event) {
+            transaction
+              .objectStore('tracks')
+              .delete(Number(trackId))
+          }
+
         transaction.oncomplete = function(event) {
           success();
         };
@@ -172,8 +199,8 @@ geoTracker.trackStore = function() {
         var recordedTracks = [];
         request.onsuccess = function(event) {
           var cursor = event.target.result;
+          // Too bad getAll() isn't standard...
           if (cursor) {
-            console.log("id: " + cursor.value.id + " is " + cursor.value.title);
             recordedTracks.push(cursor.value);
             cursor.continue();
           } else {
@@ -183,12 +210,35 @@ geoTracker.trackStore = function() {
       });
     },
 
-    getTrackDetails: function(trackId, success, error) {
+    getTrackPositions: function(trackId, success, error) {
+      openDB(function() {
+        var positions = [];
+        var positionStore = db.transaction(['positions'], 'readonly').objectStore('positions');
+        var positionIdx = positionStore.index('positionIdx');
+        var request = positionIdx.openCursor(IDBKeyRange.only(Number(trackId)));
+        request.onsuccess = function(event) {
+          var cursor = event.target.result;
+          if (cursor) {
+            positions.push(cursor.value);
+            cursor.continue();
+          } else {
+            // sort by time stamp (useless?)
+            positions.sort(function(a, b) { return a.timestamp < b.timestamp; });
+            success(positions);
+          }
+        };
+        request.onerror = function() {
+          console.error(request.errorCode);
+        }
+      });
+    },
+
+    addMarker: function(trackId, marker, success, error) {
 
     },
 
     updateTrackDetails: function(trackId, success, error) {
-
+      // TODO: 
     },
 
     close: function() {

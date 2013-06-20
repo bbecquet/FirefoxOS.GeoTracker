@@ -16,6 +16,7 @@ define(function(require) {
   var currentTrack = null;
   var tracking = false;
   var fakeMode = false; // set to true to simulate a GPS sending regular positions
+  var knownTracks = {};
 
   var $trackList = $('#trackList');
   $trackList.on('click', '.btn_deleteTrack', function(e){
@@ -25,16 +26,33 @@ define(function(require) {
         loadTrackList();
       });
     }
-  })
+  });
+  $trackList.on('click', '.btn_trackDetails', function(e){
+    currentTrack = knownTracks[this.parentNode.dataset.trackid];
+    trackStore.getTrackPositions(currentTrack.id, function(positions) {
+      currentTrack.positions = positions;
+      showView('v_trackDetails');
+    });
+  });
   function loadTrackList() {
     trackStore.getTrackList(function(tracks){
+      knownTracks = {};
     	$trackList.html('');
       $('#noTrackMsg').hide();
       if(tracks.length == 0) {
         $('#noTrackMsg').show();
       } else {
+        var track;
       	for(var i=0;i<tracks.length;i++) {
-        	$trackList.append(createTrackItem(tracks[i]));
+          track = tracks[i];
+        	$trackList.append(createTrackItem(track));
+          knownTracks[track.id] = {
+            id: track.id,
+            title: track.title,
+            date: track.date,
+            positions: [],
+            markers: []
+          }
       	}
       }
     });
@@ -43,6 +61,7 @@ define(function(require) {
     return '<li data-trackid="' + track.id + '">' +
       '<span class="t_title">' + track.title + '</span>' +
       '<span class="t_date">' + formatDate(track.date) + '</span>' +
+      '<button class="btn_trackDetails">Details</button>' + 
       '<button class="btn_deleteTrack">Delete</button></li>';
   }
   loadTrackList();
@@ -77,7 +96,7 @@ define(function(require) {
     },
     newTrack:{
       onOpen: function() {
-        $('#i_title').val('');
+        $('#i_title').val('').focus();
       }
     },
     v_tracking:{
@@ -217,7 +236,8 @@ define(function(require) {
     };
     trackPolyline.setLatLngs([]);
     trackStore.addTrack(currentTrack, 
-   		function() {
+   		function(trackId) {
+        currentTrack.id = trackId;
   			tracker = new geoTracker.tracker(fakeMode);
 	    	showView('v_tracking');
     	}, function() {
@@ -231,8 +251,10 @@ define(function(require) {
     	tracking = true;
     	tracker.start(function(newPos) {
 	      console.log('New position!', newPos);
-	      track.positions.push(newPos);
-	      updateTrackingSummary();
+	      trackStore.addPosition(track.id, newPos, function(){
+          track.positions.push(newPos);
+          updateTrackingSummary();
+        });
         $('#t_msg').hide();
 	    }, function(err) {
         var msg = (err.code == 1 ? 'Permission denied' : (err.code == 2) ? 'Position unavailable' : 'Timeout :(')
@@ -253,7 +275,9 @@ define(function(require) {
       $('#t_altitude').html(Math.round(lastCoord.altitude)+'m');
     }
     if(lastCoord.heading) {
-      $('#t_heading').css('transform', 'rotate('+Math.round(lastCoord.heading)+'deg)');
+      $('#t_heading')
+        .css('transform', 'rotate('+Math.round(lastCoord.heading)+'deg)')
+        .css('-webkit-transform', 'rotate('+Math.round(lastCoord.heading)+'deg)');
     }
 
     trackPolyline.addLatLng([lastCoord.latitude, lastCoord.longitude]);
