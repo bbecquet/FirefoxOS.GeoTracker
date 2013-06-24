@@ -104,7 +104,7 @@ define(function(require) {
         resumeTracking(currentTrack);
       }
     },
-    marker:{
+    v_newMarker:{
       onClose: function() {
         $('#m_name').val('');
         $('#m_comment').val('');
