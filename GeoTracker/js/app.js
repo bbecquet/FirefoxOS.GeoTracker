@@ -89,12 +89,12 @@ define(function(require) {
         loadTrackDetails(currentTrack);
       }
     },
-    mapView:{
+    v_map:{
     	onOpen: function() {
         mapTrack(currentTrack);
       }
     },
-    newTrack:{
+    v_newTrack:{
       onOpen: function() {
         $('#i_title').val('').focus();
       }

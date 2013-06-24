@@ -25,7 +25,7 @@
         </ul>
         <div id="noTrackMsg">No track yet.</div>
         <div class="buttons">
-          <button id="btn_newTrack" class="newView" data-view="newTrack">New track</button>
+          <button id="btn_newTrack" class="newView" data-view="v_newTrack">New track</button>
         </div>
       </div>
     </section>
@@ -34,7 +34,7 @@
       <header><button class="backButton newView" data-view="v_trackList"><</button><h1>Track details</h1></header>
       <div class="contents">
         <h1 class="t_title"></h1>
-        <button id="showOnMapStatic" class="newView" data-view="mapView">Show on map</button>
+        <button id="showOnMapStatic" class="newView" data-view="v_mapView">Show on map</button>
         <div class="t_stats">
           <p>Start date: <span class="t_startDate"></span></p>
           <p>Duration: <span class="t_duration"></span> s</p>
@@ -51,14 +51,14 @@
       </div>
     </section>
 
-    <section id="mapView">
+    <section id="v_map">
       <header><button id="btn_backToTrack" class="backButton"><</button></header>
       <div class="contents">
         <div id="map"></div>
       </div>
     </section>
 
-    <section id="newTrack">
+    <section id="v_newTrack">
       <header><button class="backButton newView" data-view="v_trackList"><</button><h1>New track</h1></header>
       <div class="contents">
         <div class="field">Title: <input id="i_title" type="text" name="title" autocomplete="off"/></div>
@@ -73,10 +73,10 @@
       <header><h1>Tracking...</h1></header>
       <div class="contents">
         <div id="trackingIndicator"></div>
-        <button id="showOnMapDynamic" class="newView" data-view="mapView">Show on map</button>
+        <button id="showOnMapDynamic" class="newView" data-view="v_mapView">Show on map</button>
         <div id="t_msg"></div>
         <div id="t_latLng"></div>
-        <p>Direction: <span id="t_heading">⬆</span></p>
+        <p>Direction: <span id="t_heading">&#10148;</span></p>
         <!--<p>Distance: <span id="t_distance"></span><p>-->
         <p>Altitude: <span id="t_altitude"></span></p>
         <div class="buttons">
