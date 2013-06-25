@@ -276,8 +276,8 @@ define(function(require) {
     }
     if(lastCoord.heading) {
       $('#t_heading')
-        .css('transform', 'rotate('+Math.round(lastCoord.heading)+'deg)')
-        .css('-webkit-transform', 'rotate('+Math.round(lastCoord.heading)+'deg)');
+        .css('transform', 'rotate('+Math.round(lastCoord.heading - 90)+'deg)')
+        .css('-webkit-transform', 'rotate('+Math.round(lastCoord.heading - 90)+'deg)');
     }
 
     trackPolyline.addLatLng([lastCoord.latitude, lastCoord.longitude]);
