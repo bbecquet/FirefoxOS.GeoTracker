@@ -250,6 +250,9 @@ define(function(require) {
     // if not, start everything
     if(!tracking) {
     	tracking = true;
+      if(tracker == null) {
+        tracker = new geoTracker.tracker(true);
+      }
     	tracker.start(function(newPos) {
 	      console.log('New position!', newPos);
 	      trackStore.addPosition(track.id, newPos, function(){
@@ -277,8 +280,15 @@ define(function(require) {
     }
     if(lastCoord.heading) {
       $('#t_heading')
-        .css('transform', 'rotate('+Math.round(lastCoord.heading - 90)+'deg)')
-        .css('-webkit-transform', 'rotate('+Math.round(lastCoord.heading - 90)+'deg)');
+        .css({
+            'transform':'rotate('+Math.round(lastCoord.heading - 90)+'deg)',
+            '-webkit-transform':'rotate('+Math.round(lastCoord.heading - 90)+'deg)'
+        });
+    }
+    if(tp.length > 1) {
+      var prevCoord = tp[tp.length - 2].coords;
+      currentTrack.distance += (geoTracker.utils.distance(prevCoord.latitude, prevCoord.longitude, lastCoord.latitude, lastCoord.longitude));
+      $('#t_distance').html(Math.round(currentTrack.distance) + ' m');
     }
 
     trackPolyline.addLatLng([lastCoord.latitude, lastCoord.longitude]);
@@ -286,7 +296,6 @@ define(function(require) {
   }
 
   function loadTrackDetails(track) {
-    console.log(track);
     var stats = geoTracker.utils.getTrackStats(track);
     // TODO: use a template engine
     $('.t_title', '#v_trackDetails').html(track.title);
@@ -298,6 +307,8 @@ define(function(require) {
     $('.t_maxAlt', '#v_trackDetails').html(Math.round(stats.maxAltitude));
     $('.t_nbPoints', '#v_trackDetails').html(track.positions.length);
     $('.t_nbMarkers', '#v_trackDetails').html(track.markers.length);
+    // keep computed distance for later
+    track.distance = stats.distance;
 
     var ctx = document.getElementById("t_profileChart").getContext("2d");
     var chartData = {
