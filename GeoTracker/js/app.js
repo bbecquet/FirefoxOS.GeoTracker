@@ -24,7 +24,6 @@ define(function(require) {
   var $trackList = $('#trackList');
   $trackList.on('click', '.btn_deleteTrack', function(e){
     if(confirm('Are you sure you want to delete this track?')) {
-      console.log('Delete '+this.parentNode.dataset.trackid);
       trackStore.deleteTrack(this.parentNode.dataset.trackid, function() {
         loadTrackList();
       });
@@ -244,7 +243,7 @@ define(function(require) {
   			tracker = new geoTracker.Tracker(fakeMode);
 	    	showView('v_tracking');
     	}, function() {
-    		console.err('Error creating new track');
+    		console.error('Error creating new track');
     });
   }
   function resumeTracking(track) {

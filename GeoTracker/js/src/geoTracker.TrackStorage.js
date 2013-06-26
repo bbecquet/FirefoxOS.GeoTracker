@@ -26,6 +26,7 @@ geoTracker.TrackStorage = function() {
       var positionIdx = positionStore.createIndex(
         'positionIdx', 'trackId', { unique: false }
       );
+      console.log('Database ready.')
     };
     request.onerror = function(event) {
         alert('Error opening DB: '+request.errorCode);
@@ -46,7 +47,6 @@ geoTracker.TrackStorage = function() {
         var trackId;
         var transaction = db.transaction(['tracks'], 'readwrite');
         transaction.oncomplete = function(event) {
-          console.log('Transaction complete, new track Id='+trackId);
           success(trackId);
         };
 
@@ -62,7 +62,7 @@ geoTracker.TrackStorage = function() {
       openDB(function() {
         var transaction = db.transaction(['positions'], 'readwrite');
         transaction.oncomplete = function(event) {
-          success();
+          success(position.id);
         };
 
         var trackStore = transaction.objectStore('positions');
@@ -70,9 +70,6 @@ geoTracker.TrackStorage = function() {
         // generate a numerical Id based on timestamp and trackId for range selection
         position.id = Number(trackId) * (1e16) + position.timestamp;
         var request = trackStore.add(position);
-        request.onsuccess = function(event) {
-          console.log('Position inserted works! Id = ' + event.target.result);
-        };
       });
     },
 
