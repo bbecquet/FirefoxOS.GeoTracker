@@ -24,8 +24,13 @@ define(function(require) {
   var $trackList = $('#trackList');
   $trackList.on('click', '.btn_deleteTrack', function(e){
     if(confirm('Are you sure you want to delete this track?')) {
-      trackStore.deleteTrack(this.parentNode.dataset.trackid, function() {
-        loadTrackList();
+      var node = this.parentNode;
+      trackStore.deleteTrack(node.dataset.trackid, function() {
+        $(node).animate({opacity: 0}, 250, 'ease', function() {
+          $(node).remove();
+          if($trackList.html() == '')
+            $('#noTrackMsg').show();
+        });
       });
     }
   });
