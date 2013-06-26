@@ -331,23 +331,7 @@ define(function(require) {
 
   // Track export
   $('#btn_exportTrack').on('click', function() {
-    var gpx = '<?xml version="1.0" encoding="UTF-8" ?>' +
-      '<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd ">' +
-      '<trk>' +
-        '<name><![CDATA[Tracked with OSMTracker for Android™]]></name>' +
-        '<trkseg>' +
-          '<trkpt lat="57.12255882" lon="24.6583702">' +
-            '<ele>36.20000076293945</ele>' +
-            '<time>2013-06-25T13:54:26Z</time>' +
-          '</trkpt>' +
-          '<trkpt lat="57.1225733" lon="24.65832513">' +
-            '<ele>49.29999923706055</ele>' +
-            '<time>2013-06-25T13:54:31Z</time>' +
-          '</trkpt>' +
-        '</trkseg>' +
-      '</trk>' +
-    '</gpx>';
-
+    var gpx = geoTracker.GPX.exportTrack(currentTrack, {serialize: true});
     var blob = new Blob([gpx], {type: "application/xml;charset=utf-8"});
     saveAs(blob, "test.gpx");
   });
