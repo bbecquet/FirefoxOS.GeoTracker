@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: 'js/lib',
+    baseUrl: 'js',
 
     // We fake jquery so that libs that "require" it don't download
     // both jquery and zepto. If you want to use jquery, remove this.
@@ -7,4 +7,4 @@ require.config({
     map: { '*': { 'jquery': 'zepto' } }
 });
 
-requirejs(['../app']);
+require(['app']);

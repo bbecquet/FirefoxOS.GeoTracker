@@ -3,17 +3,19 @@
 // http://requirejs.org/docs/api.html#define
 
 define(function(require) {
-  require('zepto');   // lightweight jQuery-like
+  require('lib/zepto');   // lightweight jQuery-like
+  require('lib/leaflet');
+  require('lib/Chart');
+  require('lib/FileSaver');
 
-  // Installation button
-  require('./install-button');
+  require('lib/install-button');
 
-  require('geotracker');
-  require('leaflet');
-  require('Chart');
-  require('FileSaver');
+  require('src/geoTracker.Utils');
+  require('src/geoTracker.Tracker');
+  require('src/geoTracker.TrackStorage');
+  require('src/geoTracker.GPX');
 
-  var trackStore = new geoTracker.trackStore();
+  var trackStore = new geoTracker.TrackStorage();
   var currentTrack = null;
   var tracking = false;
   var fakeMode = false; // set to true to simulate a GPS sending regular positions
@@ -239,7 +241,7 @@ define(function(require) {
     trackStore.addTrack(currentTrack, 
    		function(trackId) {
         currentTrack.id = trackId;
-  			tracker = new geoTracker.tracker(fakeMode);
+  			tracker = new geoTracker.Tracker(fakeMode);
 	    	showView('v_tracking');
     	}, function() {
     		console.err('Error creating new track');
@@ -251,7 +253,7 @@ define(function(require) {
     if(!tracking) {
     	tracking = true;
       if(tracker == null) {
-        tracker = new geoTracker.tracker(true);
+        tracker = new geoTracker.Tracker(true);
       }
     	tracker.start(function(newPos) {
 	      console.log('New position!', newPos);
@@ -287,7 +289,8 @@ define(function(require) {
     }
     if(tp.length > 1) {
       var prevCoord = tp[tp.length - 2].coords;
-      currentTrack.distance += (geoTracker.utils.distance(prevCoord.latitude, prevCoord.longitude, lastCoord.latitude, lastCoord.longitude));
+      currentTrack.distance = (currentTrack.distance || 0) +
+        (geoTracker.Utils.distance(prevCoord.latitude, prevCoord.longitude, lastCoord.latitude, lastCoord.longitude));
       $('#t_distance').html(Math.round(currentTrack.distance) + ' m');
     }
 
@@ -296,7 +299,7 @@ define(function(require) {
   }
 
   function loadTrackDetails(track) {
-    var stats = geoTracker.utils.getTrackStats(track);
+    var stats = geoTracker.Utils.getTrackStats(track);
     // TODO: use a template engine
     $('.t_title', '#v_trackDetails').html(track.title);
     $('.t_startDate', '#v_trackDetails').html(formatDate(track.date));
