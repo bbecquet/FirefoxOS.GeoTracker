@@ -9,15 +9,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <!-- Place favicon.ico in the root directory -->
-
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/leaflet.css">
   </head>
   <body>
-    <!-- Use this installation button to install locally without going -->
-    <!-- <button id="install-btn">Install</button> -->
-
     <section id="v_trackList">
       <header><h1>Previous tracks</h1></header>
       <div class="contents">
@@ -25,8 +20,9 @@
         </ul>
         <div id="noTrackMsg">No track yet.</div>
         <div class="buttons">
-          <button id="btn_newTrack" class="newView" data-view="newTrack">New track</button>
+          <button id="btn_newTrack" class="newView" data-view="v_newTrack">New track</button>
         </div>
+        <button id="install-btn">Install</button>
       </div>
     </section>
 
@@ -34,7 +30,7 @@
       <header><button class="backButton newView" data-view="v_trackList"><</button><h1>Track details</h1></header>
       <div class="contents">
         <h1 class="t_title"></h1>
-        <button id="showOnMapStatic" class="newView" data-view="mapView">Show on map</button>
+        <button id="showOnMapStatic" class="newView" data-view="v_map">Show on map</button>
         <div class="t_stats">
           <p>Start date: <span class="t_startDate"></span></p>
           <p>Duration: <span class="t_duration"></span> s</p>
@@ -46,25 +42,26 @@
         </div>
         <div class="buttons">
           <button id="continueTrack" class="newView" data-view="v_tracking">Resume track</button>
-          <button id="exportTrack" disabled="disabled">Export</button>
+          <button id="btn_exportTrack">Export</button>
         </div>
       </div>
     </section>
 
-    <section id="mapView">
+    <section id="v_map">
       <header><button id="btn_backToTrack" class="backButton"><</button></header>
       <div class="contents">
         <div id="map"></div>
       </div>
     </section>
 
-    <section id="newTrack">
+    <section id="v_newTrack">
       <header><button class="backButton newView" data-view="v_trackList"><</button><h1>New track</h1></header>
       <div class="contents">
         <div class="field">Title: <input id="i_title" type="text" name="title" autocomplete="off"/></div>
         <div class="buttons">
           <button type="submit" id="btn_addNewTrack"><span style="color:red">&#9679;</span> Start recording</button>
           <button type="submit" id="btn_addNewTrack_FAKE"><span style="color:red">&#9679;</span> Start FAKE recording</button>
+          <p style="font-style:italic;color:gray">Fake mode is for testing purpose, in cases where it's not possible to get real GPS positions.</p>
         </div>
       </div>
     </section>
@@ -73,22 +70,22 @@
       <header><h1>Tracking...</h1></header>
       <div class="contents">
         <div id="trackingIndicator"></div>
-        <button id="showOnMapDynamic" class="newView" data-view="mapView">Show on map</button>
+        <button id="showOnMapDynamic" class="newView" data-view="v_map">Show on map</button>
         <div id="t_msg"></div>
         <div id="t_latLng"></div>
-        <p>Direction: <span id="t_heading">⬆</span></p>
-        <!--<p>Distance: <span id="t_distance"></span><p>-->
+        <p>Direction: <span id="t_heading">&#10148;</span></p>
+        <p>Distance: <span id="t_distance">0 m</span></p>
         <p>Altitude: <span id="t_altitude"></span></p>
         <div class="buttons">
           <button id="btn_stopTracking">&#9632 Stop</button>
-          <button id="btn_addMarker" class="newView" data-view="marker">Add marker</button>
+          <button id="btn_addMarker" class="newView" data-view="v_newMarker">Add marker</button>
           <!-- TODO: Later :) -->
           <button id="btn_takePicture" style="display:none">Take photo</button>
         </div>
       </div>
     </section>
 
-    <section id="marker">
+    <section id="v_newMarker">
       <header><button id="btn_cancelMarker" class="backButton newView" data-view="v_tracking"><</button><h1>Add marker</h1></header>
       <div class="contents">
         <div class="field">
@@ -107,12 +104,7 @@
       </div>
     </section>    
 
-    <!-- Using require.js, a module system for javascript, include the
-         js files. This loads "main.js", which in turn can load other
-         files, all handled by require.js:
-         http://requirejs.org/docs/api.html#jsfiles -->
-    <script type="text/javascript"
-            data-main="js/init.js"
-            src="js/lib/require.js"></script>
+    <script data-main="js/init"
+            src="js/require.js"></script>
   </body>
 </html>

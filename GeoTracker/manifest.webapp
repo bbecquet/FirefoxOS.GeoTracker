@@ -2,7 +2,7 @@
   "version": "0.1",
   "name": "Geo tracker",
   "description": "Simple geo position recorder app",
-  "launch_path": "/index.html",
+  "launch_path": "/FirefoxOS.GeoTracker/GeoTracker/index.html",
   "icons": {
     "16": "/img/icons/geotracker-16.png",
     "48": "/img/icons/geotracker-48.png",
@@ -13,10 +13,16 @@
     "url": "https://github.com/bbecquet"
   },
   "installs_allowed_from": ["*"],
+  "fullscreen": "true",
   "default_locale": "en",
+  "locales": {
+    "fr": {
+      "description": "Application d'enregistrement de traces GPS"
+    }
+  },
   "permissions":{
     "geolocation": {
-      "description": "Needed for the app to find position."
+      "description": "Needed for the app to get positions from the device."
     }
   }
 }

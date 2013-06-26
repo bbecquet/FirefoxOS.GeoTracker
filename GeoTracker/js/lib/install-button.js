@@ -1,6 +1,6 @@
 
 define(function(require) {
-    var install = require('install');
+    var install = require('lib/install');
 
     function update() {
         var btn = document.getElementById('install-btn');

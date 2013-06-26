@@ -3,16 +3,19 @@
 // http://requirejs.org/docs/api.html#define
 
 define(function(require) {
-  require('zepto');   // lightweight jQuery-like
+  require('lib/zepto');   // lightweight jQuery-like
+  require('lib/leaflet');
+  require('lib/Chart');
+  require('lib/FileSaver');
 
-  // Installation button
-  require('./install-button');
+  require('lib/install-button');
 
-  require('geotracker');
-  require('leaflet');
-  require('Chart');
+  require('src/geoTracker.Utils');
+  require('src/geoTracker.Tracker');
+  require('src/geoTracker.TrackStorage');
+  require('src/geoTracker.GPX');
 
-  var trackStore = new geoTracker.trackStore();
+  var trackStore = new geoTracker.TrackStorage();
   var currentTrack = null;
   var tracking = false;
   var fakeMode = false; // set to true to simulate a GPS sending regular positions
@@ -21,9 +24,13 @@ define(function(require) {
   var $trackList = $('#trackList');
   $trackList.on('click', '.btn_deleteTrack', function(e){
     if(confirm('Are you sure you want to delete this track?')) {
-      console.log('Delete '+this.parentNode.dataset.trackid);
-      trackStore.deleteTrack(this.parentNode.dataset.trackid, function() {
-        loadTrackList();
+      var node = this.parentNode;
+      trackStore.deleteTrack(node.dataset.trackid, function() {
+        $(node).animate({opacity: 0}, 250, 'ease', function() {
+          $(node).remove();
+          if($trackList.html() == '')
+            $('#noTrackMsg').show();
+        });
       });
     }
   });
@@ -89,12 +96,12 @@ define(function(require) {
         loadTrackDetails(currentTrack);
       }
     },
-    mapView:{
+    v_map:{
     	onOpen: function() {
         mapTrack(currentTrack);
       }
     },
-    newTrack:{
+    v_newTrack:{
       onOpen: function() {
         $('#i_title').val('').focus();
       }
@@ -104,7 +111,7 @@ define(function(require) {
         resumeTracking(currentTrack);
       }
     },
-    marker:{
+    v_newMarker:{
       onClose: function() {
         $('#m_name').val('');
         $('#m_comment').val('');
@@ -238,10 +245,10 @@ define(function(require) {
     trackStore.addTrack(currentTrack, 
    		function(trackId) {
         currentTrack.id = trackId;
-  			tracker = new geoTracker.tracker(fakeMode);
+  			tracker = new geoTracker.Tracker(fakeMode);
 	    	showView('v_tracking');
     	}, function() {
-    		console.err('Error creating new track');
+    		console.error('Error creating new track');
     });
   }
   function resumeTracking(track) {
@@ -249,6 +256,9 @@ define(function(require) {
     // if not, start everything
     if(!tracking) {
     	tracking = true;
+      if(tracker == null) {
+        tracker = new geoTracker.Tracker(true);
+      }
     	tracker.start(function(newPos) {
 	      console.log('New position!', newPos);
 	      trackStore.addPosition(track.id, newPos, function(){
@@ -276,8 +286,16 @@ define(function(require) {
     }
     if(lastCoord.heading) {
       $('#t_heading')
-        .css('transform', 'rotate('+Math.round(lastCoord.heading)+'deg)')
-        .css('-webkit-transform', 'rotate('+Math.round(lastCoord.heading)+'deg)');
+        .css({
+            'transform':'rotate('+Math.round(lastCoord.heading - 90)+'deg)',
+            '-webkit-transform':'rotate('+Math.round(lastCoord.heading - 90)+'deg)'
+        });
+    }
+    if(tp.length > 1) {
+      var prevCoord = tp[tp.length - 2].coords;
+      currentTrack.distance = (currentTrack.distance || 0) +
+        (geoTracker.Utils.distance(prevCoord.latitude, prevCoord.longitude, lastCoord.latitude, lastCoord.longitude));
+      $('#t_distance').html(Math.round(currentTrack.distance) + ' m');
     }
 
     trackPolyline.addLatLng([lastCoord.latitude, lastCoord.longitude]);
@@ -285,8 +303,7 @@ define(function(require) {
   }
 
   function loadTrackDetails(track) {
-    console.log(track);
-    var stats = geoTracker.utils.getTrackStats(track);
+    var stats = geoTracker.Utils.getTrackStats(track);
     // TODO: use a template engine
     $('.t_title', '#v_trackDetails').html(track.title);
     $('.t_startDate', '#v_trackDetails').html(formatDate(track.date));
@@ -297,6 +314,8 @@ define(function(require) {
     $('.t_maxAlt', '#v_trackDetails').html(Math.round(stats.maxAltitude));
     $('.t_nbPoints', '#v_trackDetails').html(track.positions.length);
     $('.t_nbMarkers', '#v_trackDetails').html(track.markers.length);
+    // keep computed distance for later
+    track.distance = stats.distance;
 
     var ctx = document.getElementById("t_profileChart").getContext("2d");
     var chartData = {
@@ -315,6 +334,14 @@ define(function(require) {
       pointDot: false
     });
   };
+
+
+  // Track export
+  $('#btn_exportTrack').on('click', function() {
+    var gpx = geoTracker.GPX.exportTrack(currentTrack, {serialize: true});
+    var blob = new Blob([gpx], {type: "application/xml;charset=utf-8"});
+    saveAs(blob, "test.gpx");
+  });
 
   
   function roundTo(number, precision) {
