@@ -4,9 +4,12 @@
   "description": "Simple geo position recorder app",
   "launch_path": "/FirefoxOS.GeoTracker/GeoTracker/index.html",
   "icons": {
-    "16": "/img/icons/geotracker-16.png",
-    "48": "/img/icons/geotracker-48.png",
-    "128": "/img/icons/geotracker-128.png"
+    "16": "/FirefoxOS.GeoTracker/GeoTracker/img/icon16.png",
+    "30": "/FirefoxOS.GeoTracker/GeoTracker/img/icon30.png",
+    "32": "/FirefoxOS.GeoTracker/GeoTracker/img/icon32.png",
+    "48": "/FirefoxOS.GeoTracker/GeoTracker/img/icon48.png",
+    "60": "/FirefoxOS.GeoTracker/GeoTracker/img/icon60.png",
+    "128": "/FirefoxOS.GeoTracker/GeoTracker/img/icon128.png"
   },
   "developer": {
     "name": "Benjamin Becquet",
