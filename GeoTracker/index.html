@@ -14,7 +14,7 @@
   </head>
   <body>
     <section id="v_trackList">
-      <header><h1>Previous tracks</h1></header>
+      <header><button id="btn_settings" class="right newView" data-view="v_settings">&#9881;</button><h1>Previous tracks</h1></header>
       <div class="contents">
         <ul id="trackList">
         </ul>
@@ -62,8 +62,6 @@
         <div class="field">Title: <input id="i_title" type="text" name="title" autocomplete="off"/></div>
         <div class="buttons">
           <button type="submit" id="btn_addNewTrack"><span style="color:red">&#9679;</span> Start recording</button>
-          <button type="submit" id="btn_addNewTrack_FAKE"><span style="color:red">&#9679;</span> Start FAKE recording</button>
-          <p style="font-style:italic;color:gray">Fake mode is for testing purpose, in cases where it's not possible to get real GPS positions.</p>
         </div>
       </div>
     </section>
@@ -104,9 +102,16 @@
           <button type="submit" id="btn_addNewMarker">Ok</button>
         </div>
       </div>
-    </section>    
+    </section>
 
-    <script data-main="js/init"
-            src="js/require.js"></script>
+    <section id="v_settings">
+      <header><button class="backButton newView" data-view="v_trackList">&#10094;</button><h1>Settings</h1></header>
+      <div class="contents">
+        <label><input type="checkbox" id="c_fakeMode" /> Fake mode</label>
+        <p style="font-style:italic;color:gray">Fake mode is for testing purpose, in cases where it's not possible to get real GPS positions. Fake positions will be simulated.</p>
+      </div>
+    </section>
+
+    <script data-main="js/init" src="js/require.js"></script>
   </body>
 </html>

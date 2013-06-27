@@ -18,7 +18,6 @@ define(function(require) {
   var trackStore = new geoTracker.TrackStorage();
   var currentTrack = null;
   var tracking = false;
-  var fakeMode = false; // set to true to simulate a GPS sending regular positions
   var knownTracks = {};
 
   var $trackList = $('#trackList');
@@ -116,14 +115,10 @@ define(function(require) {
         $('#m_name').val('');
         $('#m_comment').val('');
       }
-    }
+    },
+    v_settings:{}
   };
   $('#btn_addNewTrack').on('click', function(){
-    fakeMode = false;
-    createNewTrack();
-  });
-  $('#btn_addNewTrack_FAKE').on('click', function(){
-    fakeMode = true;
     createNewTrack();
   });
   $('#btn_stopTracking').on('click', function() {
@@ -245,7 +240,6 @@ define(function(require) {
     trackStore.addTrack(currentTrack, 
    		function(trackId) {
         currentTrack.id = trackId;
-  			tracker = new geoTracker.Tracker(fakeMode);
 	    	showView('v_tracking');
     	}, function() {
     		console.error('Error creating new track');
@@ -256,9 +250,6 @@ define(function(require) {
     // if not, start everything
     if(!tracking) {
     	tracking = true;
-      if(tracker == null) {
-        tracker = new geoTracker.Tracker(true);
-      }
     	tracker.start(function(newPos) {
 	      console.log('New position!', newPos);
 	      trackStore.addPosition(track.id, newPos, function(){
@@ -334,6 +325,23 @@ define(function(require) {
       pointDot: false
     });
   };
+
+  // Settings
+  $('#c_fakeMode').on('change', function() {
+    var fakeMode = $(this).attr('checked');
+    tracker = new geoTracker.Tracker(fakeMode);
+    if(fakeMode) {
+      window.localStorage.setItem('gps.fakeMode', '1');
+    } else {
+      window.localStorage.removeItem('gps.fakeMode');
+    }
+  });
+  if(window.localStorage.getItem('gps.fakeMode')) {
+    $('#c_fakeMode').attr('checked', 'checked');
+    tracker = new geoTracker.Tracker(true);
+  } else {
+    tracker = new geoTracker.Tracker();
+  }
 
 
   // Track export
