@@ -33,6 +33,13 @@ header h1 {
     padding: 0 0.5em;
     font: 2.2rem/4rem "Open Sans", Sans-serif;
     color: white;
+    height: 100%;
+}
+
+header h1 img {
+    height:75%;
+    margin-right: 0.2em;
+    vertical-align: -0.3em;
 }
 
 header button {
