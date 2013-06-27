@@ -123,7 +123,7 @@ geoTracker.TrackStorage = function() {
             cursor.continue();
           } else {
             // sort by time stamp (useless?)
-            positions.sort(function(a, b) { return a.timestamp < b.timestamp; });
+            positions.sort(function(a, b) { return (a.timestamp - b.timestamp); });
             success(positions);
           }
         };
