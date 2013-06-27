@@ -27,7 +27,7 @@
     </section>
 
     <section id="v_trackDetails">
-      <header><button class="backButton newView" data-view="v_trackList"><</button><h1>Track details</h1></header>
+      <header><button class="backButton newView" data-view="v_trackList">&#10094;</button><h1>Track details</h1></header>
       <div class="contents">
         <h1 class="t_title"></h1>
         <button id="showOnMapStatic" class="newView" data-view="v_map">Show on map</button>
@@ -37,7 +37,9 @@
           <p>Distance: <span class="t_distance"></span> m</p>
           <!--<p>Avg speed: <span class="t_avgSpeed"></span></p>-->
           <p>Altitude: Min: <span class="t_minAlt"></span> m - Max: <span class="t_maxAlt"></span> m</p>
-          <canvas id="t_profileChart"></canvas>
+          <div id="t_profileChartWrapper">
+            <canvas id="t_profileChart" width="500" height="150"></canvas>
+          </div>
           <p><!-- <span class="t_nbPoints"></span> positions - --><span class="t_nbMarkers"></span> markers</p>
         </div>
         <div class="buttons">
@@ -48,14 +50,14 @@
     </section>
 
     <section id="v_map">
-      <header><button id="btn_backToTrack" class="backButton"><</button></header>
+      <header><button id="btn_backToTrack" class="backButton">&#10094;</button></header>
       <div class="contents">
         <div id="map"></div>
       </div>
     </section>
 
     <section id="v_newTrack">
-      <header><button class="backButton newView" data-view="v_trackList"><</button><h1>New track</h1></header>
+      <header><button class="backButton newView" data-view="v_trackList">&#10094;</button><h1>New track</h1></header>
       <div class="contents">
         <div class="field">Title: <input id="i_title" type="text" name="title" autocomplete="off"/></div>
         <div class="buttons">
@@ -77,7 +79,7 @@
         <p>Distance: <span id="t_distance">0 m</span></p>
         <p>Altitude: <span id="t_altitude"></span></p>
         <div class="buttons">
-          <button id="btn_stopTracking">&#9632 Stop</button>
+          <button id="btn_stopTracking">&#9632; Stop</button>
           <button id="btn_addMarker" class="newView" data-view="v_newMarker">Add marker</button>
           <!-- TODO: Later :) -->
           <button id="btn_takePicture" style="display:none">Take photo</button>
@@ -86,7 +88,7 @@
     </section>
 
     <section id="v_newMarker">
-      <header><button id="btn_cancelMarker" class="backButton newView" data-view="v_tracking"><</button><h1>Add marker</h1></header>
+      <header><button id="btn_cancelMarker" class="backButton newView" data-view="v_tracking">&#10094;</button><h1>Add marker</h1></header>
       <div class="contents">
         <div class="field">
             <select id="m_type" type="text" name="type">
