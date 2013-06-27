@@ -343,13 +343,19 @@ define(function(require) {
     saveAs(blob, "test.gpx");
   });
 
-  
   function roundTo(number, precision) {
     return parseFloat(number.toFixed(precision));
   }
 
-  function formatDuration(duration) {
-    return new Date(duration).toLocaleTimeString();
+  function pad(n){return n<10 ? '0'+n : n}
+
+  function formatDuration(ms) {
+    if(isNaN(ms)) ms = 0;
+    var s = ms / 1000;
+    var m = Math.floor(Math.round(s / 60));
+    var h = Math.floor(m / 60);
+    m = Math.floor(m % 60);
+    return (h > 0) ? (h + 'h' + pad(m)) : (m + ' min');
   }
 
   function formatDate(d) {
